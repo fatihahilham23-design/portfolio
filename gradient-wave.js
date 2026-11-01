@@ -529,13 +529,14 @@ void main() {
 
     resize() {
       const isMobile = window.innerWidth <= 768;
-      const width = isMobile ? Math.round(window.innerWidth * 0.5) : window.innerWidth;
-      const height = isMobile ? Math.round(window.innerHeight * 0.5) : window.innerHeight;
+      const scale = isMobile ? 0.35 : 0.5;
+      const width = Math.max(320, Math.round(window.innerWidth * scale));
+      const height = Math.max(240, Math.round(window.innerHeight * scale));
       this.minigl.setSize(width, height);
       this.minigl.setOrthographicCamera();
 
-      const xSegCount = isMobile ? 6 : Math.ceil(width * 0.02);
-      const ySegCount = isMobile ? 8 : Math.ceil(height * 0.05);
+      const xSegCount = isMobile ? 6 : 12;
+      const ySegCount = isMobile ? 8 : 16;
       this.mesh.geometry.setTopology(xSegCount, ySegCount);
       this.mesh.geometry.setSize(width, height);
       this.mesh.material.uniforms.u_shadow_power.value = width < 600 ? 5 : 6;

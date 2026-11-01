@@ -80,102 +80,33 @@ window.whenCms = function (cb) {
     setTimeout(hide, 1800); // fail-safe fallback
 })();
 
-/* ─── SMOOTH SCROLL (Vanilla Desktop) ─── */
+/* ─── NATIVE HARDWARE SMOOTH SCROLL ─── */
 (function () {
-    var fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    var html = document.documentElement;
-
-    if (fine) {
-        var target = window.scrollY, current = window.scrollY, raf = null, ease = 0.12;
-
-        function clamp() {
-            target = Math.max(0, Math.min(target, html.scrollHeight - window.innerHeight));
+    window.smoothScrollTo = function (y, instant) {
+        if (instant) {
+            window.scrollTo(0, Math.max(0, y));
+        } else {
+            window.scrollTo({
+                top: Math.max(0, y),
+                behavior: "smooth"
+            });
         }
+    };
 
-        function tick() {
-            if (document.hidden) {
-                current = target;
-                window.scrollTo(0, current);
-                raf = null;
-                return;
-            }
-            current += (target - current) * ease;
-            if (Math.abs(target - current) < 0.5) current = target;
-            window.scrollTo(0, current);
-
-            if (Math.abs(target - current) > 0.5) {
-                raf = requestAnimationFrame(tick);
-            } else {
-                raf = null;
-            }
-        }
-
-        function kick() {
-            if (!raf) raf = requestAnimationFrame(tick);
-        }
-
-        window.addEventListener("wheel", function (e) {
-            if (document.body.style.overflow === "hidden") return;
-            if (e.ctrlKey) return;
-            if (e.target.closest && e.target.closest("input, textarea, .cms-sidebar, .pdf-modal")) return;
-            target += e.deltaY;
-            clamp();
-            e.preventDefault();
-            kick();
-        }, { passive: false });
-
-        window.addEventListener("resize", function () {
-            current = window.scrollY;
-            target = current;
-        });
-
-        // Sync when scroll occurs outside RAF (scrollbar drag, hash change, programmatic)
-        window.addEventListener("scroll", function () {
-            if (!raf) {
-                current = window.scrollY;
-                target = current;
-            }
-        }, { passive: true });
-
-        // Global smooth scroll controller for entire website
-        window.smoothScrollTo = function (y, instant) {
-            target = Math.max(0, Math.min(y, html.scrollHeight - window.innerHeight));
-            if (instant) {
-                if (raf) {
-                    cancelAnimationFrame(raf);
-                    raf = null;
-                }
-                current = target;
-                window.scrollTo(0, current);
-            } else {
-                clamp();
-                kick();
-            }
-        };
-
-        html.classList.add("js-smooth");
-
-        // Smooth scroll untuk klik tautan jangkar (#)
-        window.addEventListener("click", function (e) {
-            var a = e.target.closest && e.target.closest('a[href^="#"]');
-            if (!a) return;
-            var id = a.getAttribute("href").slice(1);
-            if (!id) return;
-            var el = document.getElementById(id);
-            if (!el) return;
-            e.preventDefault();
-            window.smoothScrollTo(Math.max(0, el.offsetTop - 60));
-            history.replaceState(null, "", "#" + id);
-        });
-    } else {
-        window.smoothScrollTo = function (y, instant) {
-            if (instant) {
-                window.scrollTo(0, y);
-            } else {
-                window.scrollTo({ top: y, behavior: "smooth" });
-            }
-        };
-    }
+    // Smooth scroll untuk klik tautan jangkar (#)
+    window.addEventListener("click", function (e) {
+        var a = e.target.closest && e.target.closest('a[href^="#"]');
+        if (!a) return;
+        var href = a.getAttribute("href");
+        if (!href || href === "#") return;
+        var id = href.slice(1);
+        if (!id) return;
+        var el = document.getElementById(id);
+        if (!el) return;
+        e.preventDefault();
+        window.smoothScrollTo(Math.max(0, el.offsetTop - 60));
+        history.replaceState(null, "", "#" + id);
+    });
 })();
 
 /* ─── NAVBAR & SCROLL-SPY: compact nav & sync anime-navbar link ─── */
@@ -557,6 +488,8 @@ whenCms(function () {
         if (!pdfModal || !cert || !cert.pdf) return;
         if (pdfTitle) pdfTitle.textContent = cert.label || cert.title || "Certificate";
         if (pdfOpenTab) pdfOpenTab.href = cert.pdf;
+        var modalImg = document.getElementById("pdfModalImg");
+        if (modalImg) modalImg.src = cert.url || ('assets/certs/' + cert.id + '.webp');
         if (pdfEmbed) pdfEmbed.src = cert.pdf;
         pdfModal.hidden = false;
         document.body.style.overflow = "hidden";
@@ -565,6 +498,8 @@ whenCms(function () {
     function closeModal() {
         if (!pdfModal) return;
         pdfModal.hidden = true;
+        var modalImg = document.getElementById("pdfModalImg");
+        if (modalImg) modalImg.src = "";
         if (pdfEmbed) pdfEmbed.src = "";
         document.body.style.overflow = "";
     }
@@ -792,13 +727,17 @@ whenCms(function () {
             card.setAttribute("tabindex", "0");
             card.setAttribute("aria-label", "Certificate: " + (cert.title || cert.label));
 
-            var thumbSrc = cert.url || cert.thumbUrl || certFallbackThumb(cert.title, cert.issuer);
+            var thumbSrc = cert.url || cert.thumbUrl || ('assets/certs/' + cert.id + '.webp');
 
             var img = document.createElement("img");
             img.className = "wallet-card-thumb";
             img.src = thumbSrc;
             img.alt = cert.title || cert.label || "Certificate";
             img.loading = "lazy";
+            img.onerror = function () {
+                this.onerror = null;
+                this.src = certFallbackThumb(cert.title, cert.issuer);
+            };
 
             var badge = document.createElement("span");
             badge.className = "wallet-card-badge";

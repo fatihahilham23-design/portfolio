@@ -286,46 +286,38 @@
         var label = c.title || 'Certificate';
         if (c.year) label += ' (' + c.year + ')';
         if (c.issuer) label += ' - ' + c.issuer;
+        var localThumb = 'assets/certs/' + c.id + '.webp';
         return {
             id: c.id,
+            title: c.title,
+            issuer: c.issuer,
+            year: c.year,
             label: label,
             pdf: publicUrl('certificates', c.pdf_url),
-            thumbUrl: publicUrl('media', c.thumb_url)
+            thumbUrl: c.thumb_url ? publicUrl('media', c.thumb_url) : localThumb
         };
     }
 
-    /* ── render carousel dari mapCert + thumbnail dari PDF ── */
+    /* ── render carousel dari mapCert + thumbnail instan ── */
     function renderCerts(mapped) {
-        /* ditempatkan ke window.CMS.data.certificates (bentuk dipakai script.js):
-           setiap item: { url: thumbUrl|pdfThumb, pdf: pdfUrl, label }.
-           Gambar di carousel mengikuti rasio asli PDF (contain). */
         if (!mapped || !mapped.length) return Promise.resolve(null);
 
-        var ph = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-            '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">' +
-            '<rect width="800" height="600" fill="#f5f5f7"/>' +
-            '<rect x="36" y="36" width="728" height="528" rx="18" fill="#ffffff" stroke="#e0e0e0" stroke-width="2"/>' +
-            '<text x="400" y="300" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="52" font-weight="700" fill="#0066cc">PDF</text>' +
-            '<text x="400" y="360" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="20" fill="#7a7a7a">memuat…</text></svg>');
+        var certs = mapped.map(function (m) {
+            var localThumb = 'assets/certs/' + m.id + '.webp';
+            return {
+                id: m.id,
+                title: m.title,
+                issuer: m.issuer,
+                year: m.year,
+                label: m.label,
+                pdf: m.pdf,
+                url: m.thumbUrl || localThumb
+            };
+        });
 
-        var certs = mapped.map(function (m) { return { id: m.id, label: m.label, pdf: m.pdf, url: m.thumbUrl || ph }; });
-
-        /* render placeholder dulu (cepat), lalu ganti url-nya dengan pdf thumbnail */
         window.CMS.data = window.CMS.data || {};
         window.CMS.data.certificates = certs;
-
-        var ready = mapped.map(function (m, idx) {
-            if (m.thumbUrl) return Promise.resolve(); // pakai thumbnail upload sendiri
-            if (!m.pdf) return Promise.resolve();
-            return pdfToThumb(m.pdf).then(function (dataUrl) {
-                if (dataUrl) certs[idx].url = dataUrl;
-            });
-        });
-
-        return Promise.all(ready).then(function () {
-            window.CMS.data.certificates = certs;
-            return certs;
-        });
+        return Promise.resolve(certs);
     }
 
     var db = CMS.client;
