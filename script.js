@@ -1768,38 +1768,9 @@ whenCms(function () {
 
     window.initEduDeck = initEduDeck;
 
-    // ───────── 3D GLASS CARD INTERACTION (Specular Glass Highlight) ─────────
+    // ───────── GLASS CARD INTERACTION ─────────
     function initGlassCardTilt() {
-        var cards = document.querySelectorAll('.glass-card');
-        if (!cards.length) return;
-
-        cards.forEach(function (card) {
-            if (card.__tiltInitialized) return;
-            card.__tiltInitialized = true;
-
-            var inner = card.querySelector('.glass-card__inner');
-            if (inner) {
-                // Remove any inline transform so pure CSS 3D rotate3d transition runs flawlessly
-                inner.style.transform = '';
-            }
-
-            var glareRaf = null;
-            function onMouseMove(e) {
-                if (glareRaf) return;
-                var clientX = e.clientX;
-                var clientY = e.clientY;
-                glareRaf = requestAnimationFrame(function () {
-                    glareRaf = null;
-                    var rect = card.getBoundingClientRect();
-                    var glareX = ((clientX - rect.left) / rect.width * 100).toFixed(1);
-                    var glareY = ((clientY - rect.top) / rect.height * 100).toFixed(1);
-                    card.style.setProperty('--glare-x', glareX + '%');
-                    card.style.setProperty('--glare-y', glareY + '%');
-                });
-            }
-
-            card.addEventListener('mousemove', onMouseMove, { passive: true });
-        });
+        // Hardware accelerated via pure CSS - no JS mousemove reflow overhead
     }
 
     window.initGlassCardTilt = initGlassCardTilt;
