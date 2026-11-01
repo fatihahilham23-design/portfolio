@@ -12,3 +12,5 @@ Thumbs.db
 *.bak
 *.tmp
 remotion-video/
+
+.vercel

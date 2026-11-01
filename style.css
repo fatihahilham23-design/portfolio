@@ -2986,3 +2986,19 @@ body.is-loading {
   border: 0;
   background: #14141f;
 }
+
+/* ───────── MOBILE PERFORMANCE OPTIMIZATION ───────── */
+@media (max-width: 768px) {
+  /* Hilangkan backdrop blur bertumpuk yang membuat GPU ponsel overheat / lag */
+  .nav__pill--scrolled,
+  .split__media .media-placeholder,
+  .bezel,
+  .glass-card,
+  .card-container,
+  .dock-container,
+  .folder-gallery__item,
+  .pdf-modal {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}

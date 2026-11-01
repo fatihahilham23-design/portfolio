@@ -528,13 +528,14 @@ void main() {
     }
 
     resize() {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      const isMobile = window.innerWidth <= 768;
+      const width = isMobile ? Math.round(window.innerWidth * 0.5) : window.innerWidth;
+      const height = isMobile ? Math.round(window.innerHeight * 0.5) : window.innerHeight;
       this.minigl.setSize(width, height);
       this.minigl.setOrthographicCamera();
 
-      const xSegCount = Math.ceil(width * 0.02);
-      const ySegCount = Math.ceil(height * 0.05);
+      const xSegCount = isMobile ? 6 : Math.ceil(width * 0.02);
+      const ySegCount = isMobile ? 8 : Math.ceil(height * 0.05);
       this.mesh.geometry.setTopology(xSegCount, ySegCount);
       this.mesh.geometry.setSize(width, height);
       this.mesh.material.uniforms.u_shadow_power.value = width < 600 ? 5 : 6;
@@ -542,6 +543,12 @@ void main() {
 
     animate = (timestamp) => {
       if (!this.isPlaying) return;
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile && this.lastRender && timestamp - this.lastRender < 32) {
+        this.animationId = requestAnimationFrame(this.animate);
+        return;
+      }
+      this.lastRender = timestamp;
       this.time += Math.min(timestamp - this.last, 1000 / 15);
       this.last = timestamp;
       this.mesh.material.uniforms.u_time.value = this.time;

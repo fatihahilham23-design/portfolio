@@ -53,7 +53,10 @@
     function pdfToThumb(pdfUrl) {
         if (!pdfUrl) return Promise.resolve(null);
         if (pdfThumbCache[pdfUrl]) return Promise.resolve(pdfThumbCache[pdfUrl]);
-        return ensurePdfjs().then(function (pdfjsLib) {
+        var timeout = new Promise(function (resolve) {
+            setTimeout(function () { resolve(null); }, 3000);
+        });
+        var work = ensurePdfjs().then(function (pdfjsLib) {
             return pdfjsLib.getDocument({ url: pdfUrl, withCredentials: false }).promise;
         }).then(function (pdf) {
             return pdf.getPage(1);
@@ -72,6 +75,7 @@
             console.warn('[CMS] pdf thumbnail gagal:', pdfUrl, e && e.message || e);
             return null;
         });
+        return Promise.race([work, timeout]);
     }
 
     function renderEducation(items) {

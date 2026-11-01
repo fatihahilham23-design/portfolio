@@ -15,7 +15,7 @@ window.whenCms = function (cb) {
         return;
     }
     window.__loaderDone = false;
-    var MIN_SHOW = 1900;
+    var MIN_SHOW = 350;
     var done = false;
     var catAnim = null;
 
@@ -64,17 +64,20 @@ window.whenCms = function (cb) {
     }
 
     function start() {
-        if (document.readyState === "complete") {
+        if (document.readyState === "complete" || document.readyState === "interactive") {
             setTimeout(hide, MIN_SHOW);
             return;
         }
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(hide, MIN_SHOW);
+        });
         window.addEventListener("load", function () {
             setTimeout(hide, MIN_SHOW);
         });
     }
 
     start();
-    setTimeout(hide, 4500); // fail-safe fallback
+    setTimeout(hide, 1800); // fail-safe fallback
 })();
 
 /* ─── SMOOTH SCROLL (Vanilla Desktop) ─── */
