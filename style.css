@@ -1258,6 +1258,81 @@ button {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+/* ───────── DESKTOP 3D HYBRID EXPERIENCE (PC/Laptop Only) ───────── */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .glass-card {
+    perspective: 1000px;
+  }
+  .glass-card__inner {
+    transform-style: preserve-3d;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.3s ease;
+  }
+  .glass-card:hover .glass-card__inner {
+    transform: rotate3d(1, 1, 0, 24deg);
+    box-shadow: 28px 44px 35px -24px rgba(0, 70, 180, 0.28),
+                0 18px 26px rgba(0, 0, 0, 0.05),
+                inset 0 1px 2px #ffffff;
+    border-color: #ffffff;
+  }
+  .glass-card__inner::after {
+    display: block;
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 32px;
+    background: radial-gradient(circle 320px at 50% 30%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 70%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+    mix-blend-mode: overlay;
+    transform: translate3d(0, 0, 32px);
+    z-index: 4;
+  }
+  .glass-card:hover .glass-card__inner::after {
+    opacity: 1;
+  }
+  .glass-card__frost {
+    transform-style: preserve-3d;
+    transform: translate3d(0, 0, 20px);
+  }
+  .glass-card__circles-wrap {
+    transform-style: preserve-3d;
+  }
+  .glass-card:hover .glass-card__circle--1 { transform: translate3d(0, 0, 28px); }
+  .glass-card:hover .glass-card__circle--2 { transform: translate3d(0, 0, 52px); }
+  .glass-card:hover .glass-card__circle--3 { transform: translate3d(0, 0, 76px); }
+  .glass-card:hover .glass-card__circle--4 { transform: translate3d(0, 0, 100px); }
+
+  .glass-card__tags {
+    transform-style: preserve-3d;
+  }
+  .glass-card__tags span {
+    transform-style: preserve-3d;
+    transform: translate3d(0, 0, 20px);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 0.2s ease,
+                color 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.25s ease;
+  }
+  .glass-card:hover .glass-card__tags span {
+    transform: translate3d(0, 0, 52px);
+    background: #ffffff;
+    border-color: rgba(0, 113, 227, 0.3);
+    color: #004499;
+    box-shadow: 0 10px 22px -4px rgba(0, 80, 200, 0.18);
+  }
+  .glass-card__tags span:hover {
+    transform: translate3d(0, 0, 85px) scale(1.08) !important;
+    background: var(--primary, #0066cc) !important;
+    color: #ffffff !important;
+    border-color: var(--primary, #0066cc) !important;
+    box-shadow: 0 14px 28px rgba(0, 102, 204, 0.35) !important;
+  }
+}
+
 .glass-card__status {
   display: inline-flex;
   align-items: center;
