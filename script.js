@@ -733,7 +733,7 @@ whenCms(function () {
             img.className = "wallet-card-thumb";
             img.src = thumbSrc;
             img.alt = cert.title || cert.label || "Certificate";
-            img.loading = "lazy";
+            img.loading = "eager";
             img.onerror = function () {
                 this.onerror = null;
                 this.src = certFallbackThumb(cert.title, cert.issuer);
